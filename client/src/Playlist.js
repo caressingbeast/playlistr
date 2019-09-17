@@ -1,26 +1,66 @@
 import React from 'react';
 
-class Playlist extends React.PureComponent {
+class Playlist extends React.Component {
 
-    onDelete (video) {
-        this.props.onDelete(video);
+    constructor (props) {
+        super(props);
+
+        this.state = {
+            playlistActive: true
+        };
+    }
+
+    toggleActive (toggle) {
+        this.setState({
+            playlistActive: toggle
+        });
     }
 
     render () {
+        const { playedVideos } = this.props;
+        const { playlistActive } = this.state;
+        const [currentVideo, ...playlist] = this.props.playlist;
+
         return (
             <div className="Playlist">
-                <h3>Playlist</h3>
-                {this.props.playlist.map((video) => {
-                    return (
-                        <div key={video.id} className="video">
-                            {video.title}
-                            <button onClick={() => this.onDelete(video)}>delete</button>
-                            {this.props.username === video.user &&
-                                <button onClick={this.props.onVideoDelete(video)}>delete</button>
-                            }
-                        </div>
-                    );
-                })}
+                <button onClick={() => this.toggleActive(true)}>Queue</button>
+                <button onClick={() => this.toggleActive(false)}>History</button>
+                {playlistActive && 
+                    <div className="playlistView">
+                        {!currentVideo && !playlist.length &&
+                            <p>No videos in queue.</p>
+                        }
+                        {currentVideo &&
+                            <div key={currentVideo.id.videoId} className="currentVideo">
+                                {currentVideo.snippet.title}
+                            </div>
+                        }
+                        {playlist.map((video) => {
+                            return (
+                                <div key={video.id.videoId} className="video">
+                                    {video.snippet.title}
+                                    {this.props.username === video.user &&
+                                        <button onClick={() => this.props.onVideoDelete(video)}>delete</button>
+                                    }
+                                </div>
+                            );
+                        })}
+                    </div>
+                }
+                {!playlistActive &&
+                    <div className="playedVideosView">
+                        {!playedVideos.length &&
+                            <p>No videos in history.</p>
+                        }
+                        {playedVideos.map((video) => {
+                            return (
+                                <div key={video.id.videoId} className="video">
+                                    {video.snippet.title}
+                                </div>
+                            );
+                        })}
+                    </div>
+                }
             </div>
         );
     }

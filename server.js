@@ -12,7 +12,6 @@ if (NODE_ENV === 'production') {
 
 let currentSeconds = 0;
 let currentUser = '';
-let currentVideoId = '';
 let messages = [];
 let playedVideos = [];
 let playlist = [];
@@ -20,25 +19,19 @@ let users = [];
 
 io.on('connection', (client) => {
 
-    playlist.push({
-        id: '1234567890',
-        title: 'Fake Video Title'
-    });
-
-    client.on('userConnected', () => {
+    client.on('userLoggedIn', (username) => {
+        currentUser = username;
+        
+        users.push(currentUser)
+        
         client.emit('loadData', {
             currentSeconds,
             messages,
             playedVideos,
             playlist,
-            users,
-            videoId: currentVideoId
+            users
         });
-    });
-
-    client.on('userLoggedIn', (username) => {
-        currentUser = username;
-        users.push(currentUser);
+        
         io.emit('userJoined', users);
     });
 
@@ -50,7 +43,7 @@ io.on('connection', (client) => {
 
     client.on('clientAddedVideo', (video) => {
         playlist.push(video);
-        io.emit('serverUpdatedPlaylist', playlist);
+        io.emit('serverAddedVideo', video);
     });
 
     client.on('clientDeletedVideo', (video) => {
@@ -58,7 +51,7 @@ io.on('connection', (client) => {
             return v.id !== video.id;
         });
 
-        io.emit('serverUpdatedPlaylist', playlist);
+        io.emit('serverDeletedVideo', video);
     });
 
     client.on('disconnect', () => {
