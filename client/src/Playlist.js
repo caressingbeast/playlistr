@@ -17,29 +17,23 @@ class Playlist extends React.Component {
     }
 
     render () {
-        const { playedVideos } = this.props;
+        const { playlist, playedVideos } = this.props;
         const { playlistActive } = this.state;
-        const [currentVideo, ...playlist] = this.props.playlist;
 
         return (
             <div className="Playlist">
-                <button onClick={() => this.toggleActive(true)}>Queue</button>
-                <button onClick={() => this.toggleActive(false)}>History</button>
                 {playlistActive && 
-                    <div className="playlistView">
-                        {!currentVideo && !playlist.length &&
+                    <div className="listView">
+                        {!playlist.length &&
                             <p>No videos in queue.</p>
                         }
-                        {currentVideo &&
-                            <div key={currentVideo.id.videoId} className="currentVideo">
-                                {currentVideo.snippet.title}
-                            </div>
-                        }
-                        {playlist.map((video) => {
+                        {playlist.map((video, i) => {
+                            const isCurrentVideo = (i === 0);
+
                             return (
-                                <div key={video.id.videoId} className="video">
+                                <div key={video.id.videoId} className={`video active-${isCurrentVideo}`}>
                                     {video.snippet.title}
-                                    {this.props.username === video.user &&
+                                    {!isCurrentVideo && this.props.username === video.user &&
                                         <button onClick={() => this.props.onVideoDelete(video)}>delete</button>
                                     }
                                 </div>
@@ -48,7 +42,7 @@ class Playlist extends React.Component {
                     </div>
                 }
                 {!playlistActive &&
-                    <div className="playedVideosView">
+                    <div className="listView">
                         {!playedVideos.length &&
                             <p>No videos in history.</p>
                         }
@@ -61,6 +55,10 @@ class Playlist extends React.Component {
                         })}
                     </div>
                 }
+                <div className="playlistButtons">
+                    <button className={this.state.playlistActive ? 'active' : ''} onClick={() => this.toggleActive(true)}>Queue ({playlist.length})</button>
+                    <button className={this.state.playlistActive ? '' : 'active'} onClick={() => this.toggleActive(false)}>History ({playedVideos.length})</button>
+                </div>
             </div>
         );
     }

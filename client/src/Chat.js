@@ -1,6 +1,16 @@
 import React from 'react';
 
-class Chat extends React.Component {
+function formatDate (timestamp) {
+    const date = new Date(timestamp);
+    
+    return date.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+}
+
+export default class Chat extends React.Component {
 
     constructor (props) {
         super(props);
@@ -10,11 +20,21 @@ class Chat extends React.Component {
         };
     }
 
+    componentDidUpdate () {
+        this.el.scrollTop = this.el.scrollHeight;
+    }
+
     onSubmit (e) {
         e.preventDefault();
 
+        const text = this.state.text;
+
+        if (!text) {
+            return false;
+        }
+
         this.props.onSubmit({
-            text: this.state.text
+            text
         });
 
         this.setState({
@@ -25,26 +45,32 @@ class Chat extends React.Component {
     render () {
         return (
             <div className="Chat">
-                <h3>Chat</h3>
-                <ul>
-                    {this.props.users.map((u) => {
+                <div className="userList">
+                    <ul>
+                        {this.props.users.map((u) => {
+                            return (
+                                <li key={u}>{u}{u === this.props.user && ' (you)'}</li>
+                            );
+                        })}
+                    </ul>
+                </div>
+                <div className="messageList" ref={el => this.el = el}>
+                    {this.props.messages.map((m) => {
                         return (
-                            <li key={u}>{u}</li>
+                            <div key={m.id} id={m.id} className="message">
+                                <div className="messageHeader">
+                                    <strong>{m.user}</strong><span>{formatDate(m.date)}</span>
+                                </div>
+                                <div className={`messageText system-${m.system}`} dangerouslySetInnerHTML={{ __html: m.text }}></div>
+                            </div>
                         );
                     })}
-                </ul>
-                {this.props.messages.map((m) => {
-                    return (
-                        <div key={m.id} className="message">{m.text}</div>
-                    );
-                })}
+                </div>
                 <form onSubmit={(e) => this.onSubmit(e)}>
-                    <input type="text" placeholder="Enter message here" value={this.state.text} onChange={(e) => this.setState({ text: e.target.value})} />
+                    <input type="text" placeholder="Enter message" value={this.state.text} onChange={(e) => this.setState({ text: e.target.value})} />
                     <button type="submit">Send</button>
                 </form>
             </div>
         );
     }
 };
-
-export default Chat;

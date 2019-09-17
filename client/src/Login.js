@@ -1,17 +1,13 @@
 import React from 'react';
 
-class Login extends React.Component {
+export default class Login extends React.Component {
 
-    constructor (args) {
-        super(args);
+    constructor (props) {
+        super(props);
 
         this.state = {
             username: ''
         };
-    }
-
-    onChange (e) {
-        this.setState({ username: e.target.value });
     }
 
     onSubmit (e) {
@@ -22,13 +18,16 @@ class Login extends React.Component {
     render () {
         return (
             <div className="Login">
-                <form onSubmit={(e) => this.onSubmit(e)}>
-                    <input type="text" placeholder="Enter username here" value={this.state.username} onChange={(e) => this.onChange(e)} />
-                    <button type="submit">Save</button>
-                </form>
+                <div className="container">
+                    <div className="inner">
+                        <h1>playlistr</h1>
+                        <form onSubmit={(e) => this.onSubmit(e)}>
+                            <input type="text" placeholder="Enter a username" value={this.state.username} onChange={(e) => this.setState({ username: e.target.value })} />
+                            <button type="submit">Log In</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         );
     }
 }
-
-export default Login;

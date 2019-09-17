@@ -1,33 +1,365 @@
-.App {
-  text-align: center;
+*, *:after, *:before {
+    box-sizing: border-box;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+html {
+    height: 100%;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+body {
+    background: #f5f5f5;
+    margin: 0;
+    min-height: 100%;
+    padding: 0;
+    font-size: 16px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.4;
 }
 
-.App-link {
-  color: #61dafb;
+h1, h2, h3 {
+    margin: 0 0 1em 0;
+    font-weight: bold;
+    line-height: 1.25;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+a {
+    cursor: pointer;
+    color: #00b0e9;
+    text-decoration: none;
+}
+
+button {
+    cursor: pointer;
+}
+
+button, input {
+    margin: 0;
+    outline: 0;
+    color: inherit;
+    font: inherit;
+}
+
+.column {
+    overflow: hidden;
+    width: 50%;
+}
+
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
+    float: right;
+}
+
+.Login {
+    background: #df1f1f;
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    color: #fff;
+}
+
+.Login h1 {
+    margin: 0 0 20px;
+    font-size: 60px;
+}
+
+.Login input {
+    border: none;
+    border-radius: 3px;
+    padding: 10px;
+    color: #000;
+    font-size: 16px;
+}
+
+.Login button {
+    background: transparent;
+    border: 2px solid #fff;
+    border-radius: 3px;
+    margin: 0 0 0 6px;
+    line-height: 35px;
+    text-transform: uppercase;
+}
+
+.Login .container {
+    display: table;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}
+
+.Login .inner {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.header {
+    background: #df1f1f;
+    overflow: hidden;
+}
+
+.header h1 {
+    margin: 16px 0 0 15px;
+    color: #fff;
+}
+
+.header form {
+    background: #fff;
+    border-radius: 3px;
+    float: right;
+    margin: 15px;
+    overflow: hidden;
+    width: 70%;
+}
+
+.header form input {
+    background: none;
+    border: none;
+    padding: 10px;
+    width: 90%;
+}
+
+.header form button {
+    background: none;
+    border: none;
+    float: right;
+    padding: 10px;
+    color: #ccc;
+}
+
+.content {
+    background: #fff;
+    overflow: hidden;
+}
+
+.Playlist {
+    background: #000;
+    padding: 360px 0 0 0;
+    color: #727785;
+    font-weight: bold;
+}
+
+.listView {
+    background: #22242a;
+    border: solid #333613;
+    border-width: 1px 0;
+    height: 275px;
+    max-height: 275px;
+    overflow: auto;
+}
+
+.listView p {
+    padding: 90px 0 0 0;
+    text-align: center;
+}
+
+.listView .video {
+    border-top: 1px solid #333613;
+    padding: 10px;
+    position: relative;
+    color: #727785;
+    font-weight: bold;
+}
+
+.listView .video:first-child {
+    border: none;
+}
+
+.listView .video.active-true {
+    color: #fff;
+}
+
+.listView .video button {
+    background: none;
+    border: none;
+    padding: 0;
+    position: absolute; top: 0; right: 0;
+    width: 80px;
+    color: #e80044;
+    line-height: 42px;
+    text-align: center;
+}
+
+.listView .video button:hover {
+    background: #e80044;
+    color: #fff;
+}
+
+.playerContent {
+    position: relative;
+}
+
+.playerContent #ytPlayer {
+    position: absolute; top: 0; left: 0;
+    width: 100%;
+    height: 360px;
+    z-index: 100;
+}
+
+.playerContent:hover .playerOverlay {
+    background: rgba(0, 0, 0, 0.6);
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 360px;
+    z-index: 101;
+}
+
+.playlistButtons {
+    background: #333;
+    color: #666;
+    line-height: 60px;
+}
+
+.playlistButtons button {
+    background: none;
+    border: none;
+    width: 50%;
+    display: inline-block;
+    text-align: center;
+}
+
+.playlistButtons button.active {
+    background: #22242a;
+    color: #fff;
+}
+
+.Chat {
+    position: relative;
+}
+
+.Chat .userList {
+    border-bottom: 1px solid #e4e4e4;
+    padding: 15px;
+}
+
+.Chat .userList ul {
+    margin: 0 -5px -5px 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.Chat .userList li {
+    background: #f5f5f5;
+    border: 1px solid #e4e4e4;
+    border-radius: 3px;
+    display: block;
+    float: left;
+    margin: 0 5px 5px 0;
+    max-width: 150px;
+    padding: 5px 10px;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.Chat .message {
+    padding: 6px 15px;
+    font-size: 13px;
+}
+
+.Chat .message img {
+    margin: 5px 0 0 0;
+    width: 75%;
+}
+
+.Chat .message:hover {
+    background: #f5f5f5;
+}
+
+.Chat .messageHeader span {
+    display: inline-block;
+    margin: 0 0 0 6px;
+    color: #aaa;
+    font-size: 0.8em;
+}
+
+.Chat .messageList {
+    height: 568px;
+    max-height: 568px;
+    overflow: auto;
+}
+
+.Chat .messageText.system-true {
+    color: #aaa;
+}
+
+.Chat form {
+    background: #f5f5f5;
+    border-top: 1px solid #e4e4e4;
+    padding: 15px;
+}
+
+.Chat form input {
+    border: 1px solid #e6eaed;
+    border-radius: 3px;
+    padding: 10px;
+    width: 100%;
+    font-size: 13px;
+}
+
+.Chat form button {
+    display: none;
+}
+
+.SearchResults .resultsHeader {
+    background: #f5f5f5;
+    border-bottom: 1px solid #e4e4e4;
+    overflow: hidden;
+    padding: 10px 15px;
+    color: #999;
+    font-size: 18px;
+}
+
+.SearchResults .resultsHeader span {
+    float: left;
+    max-width: 550px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.SearchResults .resultsHeader button {
+    background: none;
+    border: none;
+    float: right;
+    height: 25px;
+    color: #e80044;
+    line-height: 25px;
+}
+
+.SearchResults .resultsList {
+    height: 652px;
+    max-height: 652px;
+    overflow: auto;
+}
+
+.SearchResults .result {
+    overflow: hidden;
+    padding: 6px 15px;
+}
+
+.SearchResults .result:hover {
+    background: #f5f5f5;
+}
+
+.SearchResults .result .thumbnail {
+    float: left;
+    padding: 0 10px 0 0;
+}
+
+.SearchResults .result h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+}
+
+.SearchResults .result p {
+    margin: 0;
+    color: #727785;
+    font-size: 12px;
+}
+
+.footer {
+    clear: both;
+    border-top: 1px solid #e4e4e4;
+    padding: 30px;
+    color: #ccc;
+    text-align: center;
 }
