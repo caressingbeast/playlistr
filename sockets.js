@@ -9,7 +9,7 @@ module.exports = function (io) {
     let users = [];
 
     function checkForImageUrl (text) {
-        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+        return text.match(/\.(jpeg|jpg|gif|png)$/) !== null;
     }
 
     function clearData () {

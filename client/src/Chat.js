@@ -21,7 +21,9 @@ export default class Chat extends React.Component {
     }
 
     componentDidUpdate () {
-        this.el.scrollTop = this.el.scrollHeight;
+        setTimeout(() => {
+            this.el.scrollTop = this.el.scrollHeight;
+        }, 50);
     }
 
     onSubmit (e) {
