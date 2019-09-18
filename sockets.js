@@ -18,7 +18,6 @@ module.exports = function (io) {
 
     io.on('connection', function (socket) {
         let currentUser = '';
-        let userLoaded = false;
 
         if (!users.length) {
             clearData();

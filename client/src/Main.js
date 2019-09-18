@@ -88,12 +88,14 @@ class Main extends React.Component {
 
         // on error, load the next video
         player.on('error', (err) => {
-            player.trigger('ended');
+            clearInterval(this.state.timer);
+            socket.emit('client_endVideo');
         });
 
         // on unplayable, load the next video
         player.on('unplayable', () => {
-            player.trigger('ended');
+            clearInterval(this.state.timer);
+            socket.emit('client_endVideo');
         });
     }
 
