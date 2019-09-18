@@ -1,5 +1,9 @@
 const uuid = require('uuid/v4');
 
+function checkForImageUrl (text) {
+    return text.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+}
+
 module.exports = function (io) {
     let currentSeconds = 0;
     let endCount = 0;
@@ -8,11 +12,8 @@ module.exports = function (io) {
     let playlist = [];
     let users = [];
 
-    function checkForImageUrl (text) {
-        return text.match(/\.(jpeg|jpg|gif|png)$/) !== null;
-    }
-
     function clearData () {
+        currentSeconds = 0;
         endCount = 0;
         messages = [];
         playedVideos = [];
@@ -60,14 +61,13 @@ module.exports = function (io) {
             };
 
             messages.push(message);
+            users.push(username);
             
             // broadcast new message
             io.emit('server_addMessage', message);
     
             // broadcast new user
             io.emit('server_addUser', currentUser);
-
-            users.push(username);
         });
     
         socket.on('client_addMessage', function (message) {
@@ -90,7 +90,7 @@ module.exports = function (io) {
             const isDuplicate = playlist.find(v => v.id.videoId === video.id.videoId);
 
             if (isDuplicate) {
-                return false;
+                return socket.emit('server_duplicateVideo');
             }
 
             playlist.push(video);
@@ -116,7 +116,7 @@ module.exports = function (io) {
             playlist = nextPlaylist;
 
             // tell clients to play the next video
-            io.emit('server_playVideo');
+            io.emit('server_playVideo', { playedVideos, playlist });
 
             // clear the count
             endCount = 0;
@@ -155,6 +155,29 @@ module.exports = function (io) {
             }
     
             currentUser = '';
+        });
+
+        socket.on('test_clearData', () => {
+            clearData();
+        });
+
+        socket.on('test_addData', function (data) {
+
+            if (data.currentUser) {
+                currentUser = data.currentUser;
+            }
+
+            if (data.playlist) {
+                playlist = data.playlist;
+            }
+
+            if (data.messages) {
+                messages = data.messages;
+            }
+            
+            if (data.users) {
+                users = data.users;
+            }
         });
     });
     
