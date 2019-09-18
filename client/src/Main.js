@@ -12,7 +12,7 @@ import Playlist from './Playlist';
 import SearchResults from './SearchResults';
 
 import io from 'socket.io-client';
-const socket = io('http://localhost:5000');
+const socket = io();
 
 class Main extends React.Component {
 
