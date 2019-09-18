@@ -8,6 +8,10 @@ module.exports = function (io) {
     let playlist = [];
     let users = [];
 
+    function checkForImageUrl (text) {
+        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+    }
+
     function clearData () {
         endCount = 0;
         messages = [];
@@ -70,7 +74,12 @@ module.exports = function (io) {
             message.date = new Date();
             message.id = uuid();
 
-            // TODO: check for images/gifs/URLs
+            // check for image
+            if (checkForImageUrl(message.text)) {
+                message.text = `<a href="${message.text}" target="new">${message.text}</a><br /><img src="${message.text}" alt="${message.text}" />`;
+            }
+
+            // TODO: check for URLs
 
             messages.push(message);
 
@@ -119,10 +128,11 @@ module.exports = function (io) {
     
         socket.on('disconnect', function () {
 
+            // if the user is just a guest, exit
             if (!currentUser) {
                 return false;
             }
-            
+
             users = users.filter((u) => {
                 return u !== currentUser;
             });
