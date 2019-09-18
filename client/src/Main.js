@@ -1,16 +1,17 @@
-import io from 'socket.io-client';
 import React from 'react';
+
 import axios from 'axios';
 import YTPlayer from 'yt-player';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
+import Chat from './Chat';
 import Login from './Login';
 import Playlist from './Playlist';
-import Chat from './Chat';
 import SearchResults from './SearchResults';
 
+import io from 'socket.io-client';
 const socket = io('http://localhost:5000');
 
 class Main extends React.Component {
@@ -18,6 +19,7 @@ class Main extends React.Component {
     state = {
         apiKey: '',
         currentSeconds: 0,
+        loaded: false,
         messages: [],
         playedVideos: [],
         player: null,
@@ -28,55 +30,92 @@ class Main extends React.Component {
         timer: null,
         username: '',
         users: [],
-        videoId: ''
     }
 
     constructor (props) {
         super(props);
 
-        socket.on('loadUsers', (users) => {
-            this.setState({ users });
+        // user has attempted to log in
+        socket.on('server_checkUsername', (res) => {
+            if (res.duplicate) {
+                return alert('That username is already taken.');
+            }
+            
+            this.setState({ username: res.username });
+
+            socket.emit('client_addUser', res.username);
         });
 
-        socket.on('loadData', (data) => {
+        // user has logged in, so load current state
+        socket.on('server_loadData', (data) => {
             const player = new YTPlayer('#ytPlayer', {
                 controls: false,
                 info: false,
-                rel: false,
+                keyboard: false,
+                modestBranding: true,
+                related: false,
                 width: '100%'
             });
-            
+
+            data.loaded = true;
             data.player = player;
             
             this.setState(data, () => {
-                this.loadVideo(this.state.playlist[0]);
+                this.initSocketEvents();
+                this.initPlayerEvents();
+                this.loadVideo(this.state.playlist[0], data.currentSeconds);
             });
+        });
+    }
 
-            player.on('ended', () => {
-                const currentVideo = this.state.playlist[0];
-                const playedVideos = this.state.playedVideos;
+    initPlayerEvents () {
+        const player = this.state.player;
 
-                const playlist = this.state.playlist.filter((v) => {
-                    return v.id.videoId !== currentVideo.id.videoId;
-                });
+        player.on('playing', () => {
+            const timer = setInterval(() => {
+                socket.emit('updateCurrentSeconds', player.getCurrentTime());
+            }, 1000);
 
-                playedVideos.push(currentVideo);
-
-                this.setState({
-                    playedVideos,
-                    playlist
-                }, () => {
-                    this.loadVideo(playlist[0]);
-                });
-            });
-
-            // on error, load the next video
-            player.on('error', (err) => {
-                player.trigger('ended');
+            this.setState({
+                timer
             });
         });
 
-        socket.on('serverAddedMessage', (message) => {
+        player.on('ended', () => {
+            clearInterval(this.state.timer);
+            socket.emit('client_endVideo');
+        });
+
+        // on error, load the next video
+        player.on('error', (err) => {
+            player.trigger('ended');
+        });
+
+        // on unplayable, load the next video
+        player.on('unplayable', () => {
+            player.trigger('ended');
+        });
+    }
+
+    initSocketEvents () {
+
+        // all users have finished current video, so play the next one
+        socket.on('server_playVideo', () => {
+            const [currentVideo, ...playlist] = this.state.playlist;
+            const playedVideos = this.state.playedVideos;
+
+            playedVideos.push(currentVideo);
+
+            this.setState({
+                playedVideos,
+                playlist
+            }, () => {
+                this.loadVideo(playlist[0]);
+            });
+        });
+
+        // user has added a message
+        socket.on('server_addMessage', (message) => {
             const messages = this.state.messages;
 
             messages.push(message);
@@ -84,7 +123,8 @@ class Main extends React.Component {
             this.setState({ messages });
         });
 
-        socket.on('serverAddedVideo', (video) => {
+        // user has added a video
+        socket.on('server_addVideo', (video) => {
             const playlist = this.state.playlist;
             const searchResults = this.state.searchResults.filter((r) => {
                 return r.id.videoId !== video.id.videoId;
@@ -93,15 +133,17 @@ class Main extends React.Component {
             playlist.push(video);
 
             this.setState({ playlist, searchResults }, () => {
-                const player = this.state.player;
+                const playerState = this.state.player.getState();
 
-                if (player.getState() === 'unstarted') {
+                // play the new video if there are none or the previous playlist is over
+                if (playerState === 'unstarted' || playerState === 'ended') {
                     this.loadVideo(playlist[0]);
                 }
             });
         });
 
-        socket.on('serverDeletedVideo', (video) => {
+        // user has deleted a video
+        socket.on('server_deleteVideo', (video) => {
             const playlist = this.state.playlist.filter((v) => {
                 return v.id.videoId !== video.id.videoId;
             });
@@ -111,21 +153,40 @@ class Main extends React.Component {
             });
         })
 
-        socket.on('userJoined', (users) => {
+        // a user has logged in
+        socket.on('server_addUser', (username) => {
+            const users = this.state.users;
+
+            users.push(username);
+
             this.setState({ users });
         });
 
-        socket.on('userLeft', (users) => {
+        // a user has disconnected
+        socket.on('server_deleteUser', (username) => {
+            const users = this.state.users.filter((u) => {
+                return u !== username;
+            });
+
             this.setState({ users });
+        });
+
+        socket.on('server_ping', () => {
+            axios.get('/ping').then(() => {
+                socket.emit('client_ping');
+            });
         });
     }
 
-    loadVideo (video) {
+    loadVideo (video, startSeconds) {
         if (!video) {
             return false;
         }
 
-        this.state.player.load(video.id.videoId, true);
+        this.state.player.load({ 
+            videoId: video.id.videoId, 
+            startSeconds: startSeconds ? (startSeconds + 3) : 0 
+        }, true);
     }
 
     onClearSearch () {
@@ -138,24 +199,16 @@ class Main extends React.Component {
 
     onLoadResult (video) {
         video.user = this.state.username;
-        socket.emit('clientAddedVideo', video);
+        socket.emit('client_addVideo', video);
     }
 
     onLogin (username) {
-        const userFound = this.state.users.find(u => u.toLowerCase() === username.toLowerCase());
-
-        if (userFound) {
-            return alert('That username is already taken.');
-        }
-
-        this.setState({ username });
-
-        socket.emit('userLoggedIn', username);
+        socket.emit('client_checkUsername', username);
     }
 
     onMessage (message) {
         message.user = this.state.username;
-        socket.emit('clientAddedMessage', message);
+        socket.emit('client_addMessage', message);
     }
 
     onSearch (e) {
@@ -185,7 +238,7 @@ class Main extends React.Component {
     }
 
     onVideoDelete (video) {
-        socket.emit('clientDeletedVideo', video);
+        socket.emit('client_deleteVideo', video);
     }
 
     render () {

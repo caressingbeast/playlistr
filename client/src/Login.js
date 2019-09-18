@@ -23,7 +23,7 @@ export default class Login extends React.Component {
                         <h1>playlistr</h1>
                         <form onSubmit={(e) => this.onSubmit(e)}>
                             <input type="text" placeholder="Enter a username" value={this.state.username} onChange={(e) => this.setState({ username: e.target.value })} />
-                            <button type="submit">Log In</button>
+                            <button type="submit">Go!</button>
                         </form>
                     </div>
                 </div>
