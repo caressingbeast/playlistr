@@ -118,6 +118,11 @@ module.exports = function (io) {
         });
     
         socket.on('disconnect', function () {
+
+            if (!currentUser) {
+                return false;
+            }
+            
             users = users.filter((u) => {
                 return u !== currentUser;
             });
