@@ -10,12 +10,12 @@ if (NODE_ENV === 'production') {
     app.use(express.static('client/build'));
 }
 
-app.get('*', function (req, res) {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-});
-
 app.get('/ping', (req, res) => {
     return res.status(200).send(true);
+});
+
+app.get('*', function (req, res) {
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
 });
 
 require('./sockets')(io);
