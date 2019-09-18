@@ -73,7 +73,7 @@ class Main extends React.Component {
 
         player.on('playing', () => {
             const timer = setInterval(() => {
-                socket.emit('updateCurrentSeconds', player.getCurrentTime());
+                socket.emit('client_currentSeconds', player.getCurrentTime());
             }, 1000);
 
             this.setState({

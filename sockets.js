@@ -121,6 +121,10 @@ module.exports = function (io) {
             // clear the count
             endCount = 0;
         });
+
+        socket.on('client_currentSeconds', function (seconds) {
+            currentSeconds = seconds;
+        });
     
         socket.on('client_ping', function () {
             // do nothing, keep connection alive
