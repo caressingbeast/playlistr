@@ -22,6 +22,36 @@ module.exports = function (io) {
         users = [];
     }
 
+    function hasValidCommand (text, user) {
+        const [command, ...str] = text.split(' ');
+
+        const message = {
+            id: uuid(),
+            date: new Date(),
+            system: false,
+            text: '',
+            user
+        };
+
+        switch (command) {
+            case '/help': {
+                message.system = true;
+                message.text = `<pre><code>${command}</code></pre>`;
+                return message;
+            }
+
+            case '/me': {
+                message.system = true;
+                message.text = str.join(' ');
+                return message;
+            }
+
+            default: {
+                return false;
+            }
+        }
+    }
+
     io.on('connection', function (socket) {
         let currentUser = '';
 
@@ -74,6 +104,12 @@ module.exports = function (io) {
         socket.on('client_addMessage', function (message) {
             message.date = new Date();
             message.id = uuid();
+
+            // check for commands 
+            const command = hasValidCommand(message.text, currentUser);
+            if (command) {
+                return socket.emit('server_addMessage', command);
+            }
 
             // check for image
             if (checkForImageUrl(message.text)) {
