@@ -1,3 +1,4 @@
+const sanitizeHtml = require('sanitize-html');
 const uuid = require('uuid/v4');
 
 function checkForImageUrl (text) {
@@ -78,6 +79,14 @@ module.exports = function (io) {
             if (checkForImageUrl(message.text)) {
                 message.text = `<a href="${message.text}" target="new">${message.text}</a><br /><img src="${message.text}" alt="${message.text}" />`;
             }
+
+            message.text = sanitizeHtml(message.text, {
+                allowedTags: ['a', 'b', 'br', 'code', 'em', 'i', 'img', 'pre', 'strong', 'u'],
+                allowedAttributes: {
+                    a: ['href', 'target'],
+                    img: ['alt', 'src']
+                }
+            });
 
             // TODO: check for URLs
 
