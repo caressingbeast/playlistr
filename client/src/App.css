@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+
 *, *:after, *:before {
     box-sizing: border-box;
 }
@@ -12,7 +14,7 @@ body {
     min-height: 100%;
     padding: 0;
     font-size: 16px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.4;
 }
 
@@ -347,7 +349,7 @@ button, input {
 
 .SearchResults .result h3 {
     margin: 0 0 5px 0;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .SearchResults .result p {
