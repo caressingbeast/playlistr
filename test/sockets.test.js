@@ -127,6 +127,22 @@ describe('sockets', () => {
 
             socket.emit('client_addMessage', message);
         });
+
+        it('sanitizes HTML', (done) => {
+            const message = {
+                text: '<h1>Heading</h1><br /><p>Paragraph</p><br /><a href="https://google.com" onClick="javascript:void(0);">Google</a>',
+                user: 'user'
+            };
+
+            const expected = 'Heading<br />Paragraph<br /><a href="https://google.com">Google</a>';
+
+            socket.on('server_addMessage', (res) => {
+                expect(res.text).to.equal(expected);
+                done();
+            });
+
+            socket.emit('client_addMessage', message);
+        });
     });
 
     describe('client_addVideo', () => {
