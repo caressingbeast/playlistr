@@ -20,10 +20,12 @@ export default class Chat extends React.Component {
         };
     }
 
+    componentDidMount () {
+        this.scroll();
+    }
+
     componentDidUpdate () {
-        setTimeout(() => {
-            this.el.scrollTop = this.el.scrollHeight;
-        }, 50);
+        this.scroll();
     }
 
     onSubmit (e) {
@@ -42,6 +44,14 @@ export default class Chat extends React.Component {
         this.setState({
             text: ''
         });
+    }
+
+    scroll () {
+        setTimeout(() => {
+            if (this.el) {
+                this.el.scrollTop = this.el.scrollHeight;
+            }
+        }, 50);
     }
 
     render () {
