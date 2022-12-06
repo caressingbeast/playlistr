@@ -11,7 +11,7 @@
     "author": "Brandon Burning",
     "license": "ISC",
     "dependencies": {
-        "express": "^4.17.1",
+        "express": "^4.18.2",
         "http": "0.0.0",
         "sanitize-html": "^1.20.1",
         "socket.io": "^2.2.0",
